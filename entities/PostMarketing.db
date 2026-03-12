@@ -1,0 +1,45 @@
+{
+  "name": "PostMarketing",
+  "type": "object",
+  "properties": {
+    "titulo": {
+      "type": "string",
+      "description": "T\u00edtulo do post"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o/conte\u00fado do post"
+    },
+    "data_programada": {
+      "type": "string",
+      "format": "date",
+      "description": "Data programada para publica\u00e7\u00e3o"
+    },
+    "rede_social": {
+      "type": "string",
+      "enum": [
+        "Instagram",
+        "Facebook",
+        "Ambos"
+      ],
+      "description": "Rede social alvo"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "programado",
+        "publicado"
+      ],
+      "default": "rascunho",
+      "description": "Status do post"
+    },
+    "imagem_url": {
+      "type": "string",
+      "description": "URL da imagem do post"
+    }
+  },
+  "required": [
+    "titulo"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "name": "Anamnese",
+  "type": "object",
+  "properties": {
+    "cliente_id": {
+      "type": "string",
+      "description": "ID do cliente"
+    },
+    "cliente_nome": {
+      "type": "string",
+      "description": "Nome do cliente"
+    },
+    "alergias": {
+      "type": "string",
+      "description": "Alergias conhecidas"
+    },
+    "medicamentos_em_uso": {
+      "type": "string",
+      "description": "Medicamentos em uso"
+    },
+    "cirurgias_previas": {
+      "type": "string",
+      "description": "Cirurgias pr\u00e9vias"
+    },
+    "problemas_cardiacos": {
+      "type": "boolean",
+      "default": false,
+      "description": "Possui problemas card\u00edacos"
+    },
+    "diabetes": {
+      "type": "boolean",
+      "default": false,
+      "description": "Possui diabetes"
+    },
+    "gestante": {
+      "type": "boolean",
+      "default": false,
+      "description": "Est\u00e1 gestante"
+    },
+    "fumante": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u00c9 fumante"
+    },
+    "objetivo_tratamento": {
+      "type": "string",
+      "description": "Objetivo do tratamento"
+    },
+    "observacoes_medicas": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es m\u00e9dicas"
+    },
+    "preenchido": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se a ficha foi preenchida"
+    }
+  },
+  "required": [
+    "cliente_id"
+  ]
+}

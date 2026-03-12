@@ -1,0 +1,40 @@
+{
+  "name": "Servico",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do servi\u00e7o"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o do servi\u00e7o"
+    },
+    "duracao_min": {
+      "type": "number",
+      "description": "Dura\u00e7\u00e3o em minutos"
+    },
+    "preco": {
+      "type": "number",
+      "description": "Pre\u00e7o do servi\u00e7o em reais"
+    },
+    "comissao_percentual": {
+      "type": "number",
+      "description": "Percentual de comiss\u00e3o para o profissional"
+    },
+    "cor_identificacao": {
+      "type": "string",
+      "description": "Cor de identifica\u00e7\u00e3o no calend\u00e1rio (hex)"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o servi\u00e7o est\u00e1 ativo"
+    }
+  },
+  "required": [
+    "nome",
+    "duracao_min",
+    "preco"
+  ]
+}

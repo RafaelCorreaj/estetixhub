@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 270 10% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 270 10% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 270 10% 15%;
+    --primary: 292 84% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 60% 96%;
+    --secondary-foreground: 270 40% 30%;
+    --muted: 270 20% 96%;
+    --muted-foreground: 270 10% 45%;
+    --accent: 292 60% 94%;
+    --accent-foreground: 292 84% 30%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 270 15% 90%;
+    --input: 270 15% 90%;
+    --ring: 292 84% 40%;
+    --radius: 0.75rem;
+    --chart-1: 292 84% 40%;
+    --chart-2: 270 60% 55%;
+    --chart-3: 330 80% 55%;
+    --chart-4: 200 70% 50%;
+    --chart-5: 160 60% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(270, 15%, 80%);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(270, 15%, 65%);
+}
+
+/* Smooth animations */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

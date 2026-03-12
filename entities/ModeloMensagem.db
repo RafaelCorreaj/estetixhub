@@ -1,0 +1,35 @@
+{
+  "name": "ModeloMensagem",
+  "type": "object",
+  "properties": {
+    "nome_modelo": {
+      "type": "string",
+      "description": "Nome do modelo"
+    },
+    "mensagem": {
+      "type": "string",
+      "description": "Texto da mensagem com vari\u00e1veis {nome_cliente}, {data}, {hora}"
+    },
+    "tipo_disparo": {
+      "type": "string",
+      "enum": [
+        "automatico",
+        "manual"
+      ],
+      "description": "Tipo de disparo"
+    },
+    "trigger_dias": {
+      "type": "number",
+      "description": "Disparar X dias antes"
+    },
+    "ativo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Se o modelo est\u00e1 ativo"
+    }
+  },
+  "required": [
+    "nome_modelo",
+    "mensagem"
+  ]
+}

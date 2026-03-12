@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model usuarios {
+  id            String         @id @default(cuid())
+  nome          String
+  email         String         @unique
+  senha         String
+  telefone      String?
+  perfil        String         @default("atendente")
+  especialidade String?
+  ativo         Boolean        @default(true)
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  agendamentos  agendamentos[] @relation("profissional")
+}
+
+model clientes {
+  id              String         @id @default(cuid())
+  nome            String
+  telefone        String
+  email           String?
+  data_nascimento DateTime?
+  cpf             String?        @unique
+  endereco        String?
+  como_conheceu   String?
+  observacoes     String?
+  data_cadastro   DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+  agendamentos    agendamentos[]
+  anamneses       anamnese[]
+}
+
+model anamnese {
+  id                  String   @id @default(cuid())
+  cliente_id          String
+  data_preenchimento  DateTime @default(now())
+  alergias            String?
+  medicamentos_em_uso String?
+  cirurgias_previas   String?
+  problemas_cardiacos Boolean? @default(false)
+  diabetes            Boolean? @default(false)
+  gestante            Boolean? @default(false)
+  fumante             Boolean? @default(false)
+  objetivo_tratamento String?
+  observacoes_medicas String?
+  preenchido          Boolean  @default(false)
+  cliente             clientes @relation(fields: [cliente_id], references: [id])
+}
+
+model servicos {
+  id                  String         @id @default(cuid())
+  nome                String         @unique
+  descricao           String?
+  duracao_min         Int
+  preco               Float
+  comissao_percentual Float?
+  cor_identificacao   String?
+  ativo               Boolean        @default(true)
+  created_at          DateTime       @default(now())
+  updated_at          DateTime       @updatedAt
+  agendamentos        agendamentos[]
+}
+
+model agendamentos {
+  id               String    @id @default(cuid())
+  cliente_id       String
+  servico_id       String
+  profissional_id  String
+  data_hora_inicio DateTime
+  data_hora_fim    DateTime?
+  status           String    @default("pendente")
+  valor_total      Float?
+  forma_pagamento  String?
+  observacoes      String?
+  lembrete_enviado Boolean   @default(false)
+  created_at       DateTime  @default(now())
+  updated_at       DateTime  @updatedAt
+  cliente          clientes  @relation(fields: [cliente_id], references: [id])
+  profissional     usuarios  @relation("profissional", fields: [profissional_id], references: [id])
+  servico          servicos  @relation(fields: [servico_id], references: [id])
+}
+
+model posts_marketing {
+  id              String    @id @default(cuid())
+  titulo          String
+  descricao       String?
+  data_programada DateTime?
+  rede_social     String?
+  status          String    @default("rascunho")
+  imagem_url      String?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+}
+
+model modelos_mensagem {
+  id           String   @id @default(cuid())
+  nome         String   @unique
+  mensagem     String
+  tipo_disparo String
+  trigger_dias Int?
+  ativo        Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+}

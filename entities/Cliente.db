@@ -1,0 +1,50 @@
+{
+  "name": "Cliente",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome completo do cliente"
+    },
+    "telefone": {
+      "type": "string",
+      "description": "Telefone com DDD"
+    },
+    "email": {
+      "type": "string",
+      "description": "E-mail do cliente"
+    },
+    "data_nascimento": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de nascimento"
+    },
+    "cpf": {
+      "type": "string",
+      "description": "CPF do cliente"
+    },
+    "endereco": {
+      "type": "string",
+      "description": "Endere\u00e7o completo"
+    },
+    "como_conheceu": {
+      "type": "string",
+      "enum": [
+        "Instagram",
+        "Facebook",
+        "Indica\u00e7\u00e3o",
+        "Google",
+        "Outros"
+      ],
+      "description": "Como conheceu a cl\u00ednica"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es gerais"
+    }
+  },
+  "required": [
+    "nome",
+    "telefone"
+  ]
+}
