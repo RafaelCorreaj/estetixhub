@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import {
   LayoutDashboard,
@@ -12,31 +11,30 @@ import {
   Menu,
   LogOut,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Settings // Adicionado ícone de configurações
 } from "lucide-react";
 
+// Menu principal (sem Configurações)
 const navItems = [
-  { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
-  { name: "Clientes", icon: Users, page: "Clientes" },
-  { name: "Agenda", icon: Calendar, page: "Agenda" },
-  { name: "Serviços", icon: Scissors, page: "Servicos" },
-  { name: "Anamnese", icon: ClipboardList, page: "Anamnese" },
-  { name: "Marketing", icon: Megaphone, page: "Marketing" },
+  { name: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
+  { name: "Clientes", icon: Users, path: "/clientes" },
+  { name: "Agenda", icon: Calendar, path: "/agenda" },
+  { name: "Serviços", icon: Scissors, path: "/servicos" },
+  { name: "Anamnese", icon: ClipboardList, path: "/anamnese" },
+  { name: "Marketing", icon: Megaphone, path: "/marketing" },
 ];
 
-export default function Layout({ children, currentPageName }) {
+export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+    navigate('/login');
   };
-
-  // Public pages without sidebar
-  if (currentPageName === "AnamnesePublica") {
-    return <>{children}</>;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50/50 via-white to-pink-50/30">
@@ -67,14 +65,14 @@ export default function Layout({ children, currentPageName }) {
             </div>
           </div>
 
-          {/* Navigation */}
+          {/* Navigation - Menu Principal */}
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
-              const isActive = currentPageName === item.page;
+              const isActive = location.pathname === item.path;
               return (
                 <Link
-                  key={item.page}
-                  to={createPageUrl(item.page)}
+                  key={item.path}
+                  to={item.path}
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
                     ${isActive
@@ -90,23 +88,47 @@ export default function Layout({ children, currentPageName }) {
             })}
           </nav>
 
-          {/* User section */}
+          {/* User section - AGORA COM CONFIGURAÇÕES */}
           <div className="p-4 border-t border-purple-50">
             {user && (
-              <div className="flex items-center gap-3 px-3 py-2">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                  {user.name?.[0]?.toUpperCase() || user.full_name?.[0]?.toUpperCase() || "U"}
+              <div className="space-y-2">
+                {/* Informações do usuário */}
+                <div className="flex items-center gap-3 px-3 py-2">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                    {user.nome?.[0]?.toUpperCase() || "U"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{user.nome || "Usuário"}</p>
+                    <p className="text-xs text-purple-400 capitalize">{user.perfil || "admin"}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">{user.name || user.full_name || "Usuário"}</p>
-                  <p className="text-xs text-purple-400 capitalize">{user.role || "admin"}</p>
+
+                {/* Menu do Usuário - Configurações e Logout */}
+                <div className="space-y-1">
+                  {/* Link de Configurações */}
+                  <Link
+                    to="/configuracoes"
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200
+                      ${location.pathname === "/configuracoes"
+                        ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white shadow-md shadow-purple-200"
+                        : "text-gray-600 hover:bg-purple-50 hover:text-purple-700"
+                      }`}
+                  >
+                    <Settings className={`w-5 h-5 ${location.pathname === "/configuracoes" ? "text-white" : ""}`} />
+                    Configurações
+                    {location.pathname === "/configuracoes" && <ChevronRight className="w-4 h-4 ml-auto" />}
+                  </Link>
+
+                  {/* Botão de Logout */}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all duration-200 w-full"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    Sair
+                  </button>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
               </div>
             )}
           </div>
@@ -134,8 +156,9 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </header>
 
+        {/* ÁREA PRINCIPAL */}
         <main className="p-4 md:p-6 lg:p-8">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>

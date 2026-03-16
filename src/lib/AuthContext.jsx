@@ -1,85 +1,73 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { api } from '@/services/api';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext({});
+
+export const useAuth = () => useContext(AuthContext);
+
+// Função para armazenar token
+const TOKEN_KEY = '@estetixhub:token';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
-  const [authError, setAuthError] = useState(null);
-  const [appPublicSettings, setAppPublicSettings] = useState(null); // Contains only { id, public_settings }
+  const [loading, setLoading] = useState(true);
 
+  // Carregar usuário do token salvo
   useEffect(() => {
-    checkAppState();
+    async function loadUser() {
+      const token = localStorage.getItem(TOKEN_KEY);
+      
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Configurar token para próximas requisições
+        // Você pode implementar um interceptor ou passar no header
+        const userData = await api.getCurrentUser();
+        setUser(userData);
+      } catch (error) {
+        console.error('Erro ao carregar usuário:', error);
+        localStorage.removeItem(TOKEN_KEY);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadUser();
   }, []);
 
-  const checkAppState = async () => {
-    // MOCK: Simulando o carregamento das configurações do app (Substituir pela chamada à API real)
-    setIsLoadingPublicSettings(true);
-    setAuthError(null);
-    
-    setTimeout(() => {
-      setAppPublicSettings({ id: 'mock-app-id', public_settings: {} });
-      setIsLoadingPublicSettings(false);
-      checkUserAuth();
-    }, 300);
-  };
-
-  const checkUserAuth = async () => {
-    // MOCK: Simulando um usuário autenticado (Substituir pela chamada `/api/auth/me`)
-    setIsLoadingAuth(true);
-    
-    setTimeout(() => {
-      setUser({
-        id: 'user-mock-1',
-        name: 'Administrador Local',
-        email: 'admin@local.dev',
-        role: 'admin'
-      });
-      setIsAuthenticated(true);
-      setIsLoadingAuth(false);
-    }, 300);
-  };
-
-  const logout = (shouldRedirect = true) => {
-    // MOCK: Simulando logout
-    setUser(null);
-    setIsAuthenticated(false);
-    
-    if (shouldRedirect) {
-      // Exemplo: window.location.href = '/login';
-      console.log('Redirecionando para login...');
+  const login = async (email, senha) => {
+    try {
+      const response = await api.login({ email, senha });
+      
+      // Salvar token
+      localStorage.setItem(TOKEN_KEY, response.token);
+      
+      // Salvar usuário
+      setUser(response.user);
+      
+      return response;
+    } catch (error) {
+      throw new Error(error.message || 'Erro ao fazer login');
     }
   };
 
-  const navigateToLogin = () => {
-    // MOCK: Simulando redirecionamento
-    // window.location.href = '/login';
-    console.log('Navegando para login...');
+  const logout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    setUser(null);
   };
 
   return (
     <AuthContext.Provider value={{ 
       user, 
-      isAuthenticated, 
-      isLoadingAuth,
-      isLoadingPublicSettings,
-      authError,
-      appPublicSettings,
+      login, 
       logout,
-      navigateToLogin,
-      checkAppState
+      isAuthenticated: !!user,
+      loading
     }}>
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

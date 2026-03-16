@@ -1,9 +1,3 @@
-
----
-
-## 📁 **ARQUIVO: `docs/SPECIFICATIONS.md`**
-
-```markdown
 # SPECIFICATIONS.md - Especificações Técnicas do EstetixHub
 
 ## 1. Tecnologias Utilizadas
@@ -18,6 +12,7 @@
 | React Hook Form | 7.54 | Formulários |
 | Zod | 3.24 | Validação |
 | Recharts | 2.15 | Gráficos |
+| React Query | 5.84 | Gerenciamento de estado |
 | date-fns | 3.6 | Manipulação de datas |
 | Vite | 6.1 | Build e dev server |
 
@@ -31,11 +26,9 @@
 | JWT | 9.0 | Autenticação |
 | Bcrypt | 3.0 | Hash de senhas |
 
----
 
 ## 2. Models do Banco (Prisma)
 
-### Model: usuarios
 ```prisma
 model usuarios {
   id           String   @id @default(cuid())
@@ -50,9 +43,6 @@ model usuarios {
   updated_at   DateTime @updatedAt
 }
 
-
-Model: clientes
-prisma
 model clientes {
   id              String   @id @default(cuid())
   nome            String
@@ -66,8 +56,7 @@ model clientes {
   data_cadastro   DateTime @default(now())
   updated_at      DateTime @updatedAt
 }
-Model: servicos
-prisma
+
 model servicos {
   id                  String   @id @default(cuid())
   nome                String   @unique
@@ -80,8 +69,7 @@ model servicos {
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt
 }
-Model: agendamentos
-prisma
+
 model agendamentos {
   id                String   @id @default(cuid())
   cliente_id        String
@@ -89,7 +77,7 @@ model agendamentos {
   profissional_id   String
   data_hora_inicio  DateTime
   data_hora_fim     DateTime?
-  status            String   @default("pendente")
+  status            String   @default("pendente") // pendente, confirmado, concluido, cancelado
   valor_total       Float?
   forma_pagamento   String?
   observacoes       String?
@@ -97,8 +85,7 @@ model agendamentos {
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
 }
-Model: anamnese
-prisma
+
 model anamnese {
   id                  String   @id @default(cuid())
   cliente_id          String
@@ -114,188 +101,143 @@ model anamnese {
   observacoes_medicas String?
   preenchido          Boolean  @default(false)
 }
-3. API Endpoints Detalhados
+
+model posts_marketing {
+  id              String   @id @default(cuid())
+  titulo          String
+  descricao       String?
+  data_programada DateTime?
+  rede_social     String?
+  status          String   @default("rascunho") // rascunho, programado, publicado
+  imagem_url      String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+}
+
+model modelos_mensagem {
+  id           String   @id @default(cuid())
+  nome         String   @unique
+  mensagem     String   // Suporta {nome_cliente}, {data}, {hora}
+  tipo_disparo String   // automatico, manual
+  trigger_dias Int?
+  ativo        Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+}
+
+3. API Endpoints (Completos)
 Clientes
-Listar todos os clientes
-
 text
-GET /api/clientes
-Resposta:
-{
-  "success": true,
-  "data": [
-    {
-      "id": "c864cfd0...",
-      "nome": "Cliente Teste",
-      "telefone": "(11) 99999-9999",
-      "email": "teste@email.com"
-    }
-  ]
-}
-Buscar cliente por ID
-
-text
-GET /api/clientes/:id
-Resposta:
-{
-  "success": true,
-  "data": {
-    "id": "c864cfd0...",
-    "nome": "Cliente Teste",
-    "telefone": "(11) 99999-9999",
-    "email": "teste@email.com",
-    "agendamentos": [...]
-  }
-}
-Criar novo cliente
-
-text
-POST /api/clientes
-Body:
-{
-  "nome": "Novo Cliente",
-  "telefone": "(11) 88888-8888",
-  "email": "novo@email.com"
-}
+GET    /api/clientes     # Lista todos
+GET    /api/clientes/:id # Busca um
+POST   /api/clientes     # Cria novo
+PUT    /api/clientes/:id # Atualiza
+DELETE /api/clientes/:id # Remove
 Serviços
-Listar serviços ativos
-
 text
-GET /api/servicos
-Resposta:
-{
-  "success": true,
-  "data": [
-    {
-      "id": "...",
-      "nome": "Limpeza de Pele",
-      "preco": 150.00,
-      "duracao_min": 60
-    }
-  ]
-}
-4. Configuração do Serviço de API (Frontend)
-Arquivo: src/services/api.js
+GET    /api/servicos      # Lista ativos
+GET    /api/servicos/:id  # Busca um
+POST   /api/servicos      # Cria novo
+PUT    /api/servicos/:id  # Atualiza
+DELETE /api/servicos/:id  # Desativa
+Agendamentos
+text
+GET    /api/agendamentos?data=...  # Filtra por data
+GET    /api/agendamentos/:id       # Busca um
+POST   /api/agendamentos            # Cria novo
+PUT    /api/agendamentos/:id        # Atualiza
+PATCH  /api/agendamentos/:id/cancel # Cancela
+Anamnese
+text
+GET    /api/anamnese                    # Lista todas
+GET    /api/anamnese/:id                 # Busca uma
+GET    /api/anamnese/cliente/:clienteId  # Busca por cliente
+POST   /api/anamnese                     # Cria nova
+PUT    /api/anamnese/:id                  # Atualiza
+DELETE /api/anamnese/:id                  # Remove
+Marketing
+text
+GET    /api/marketing/posts        # Lista posts
+POST   /api/marketing/posts        # Cria post
+PUT    /api/marketing/posts/:id    # Atualiza post
+DELETE /api/marketing/posts/:id    # Remove post
+
+GET    /api/marketing/modelos      # Lista modelos
+POST   /api/marketing/modelos      # Cria modelo
+PUT    /api/marketing/modelos/:id  # Atualiza modelo
+DELETE /api/marketing/modelos/:id  # Remove modelo
+Usuários
+text
+GET    /api/usuarios           # Lista usuários
+GET    /api/usuarios/:id       # Busca um
+POST   /api/usuarios           # Cria usuário
+PUT    /api/usuarios/:id       # Atualiza
+Autenticação
+text
+POST   /api/auth/login         # Login
+POST   /api/auth/register      # Registro
+GET    /api/auth/me            # Dados do usuário atual
+POST   /api/auth/change-password # Alterar senha
+
+
+4. Configuração do Frontend
+Serviço de API (src/services/api.js)
 javascript
 const API_BASE = '/api';
 
 async function apiRequest(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
+  const token = localStorage.getItem('@estetixhub:token');
   
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
     },
   };
 
-  try {
-    const response = await fetch(url, { ...defaultOptions, ...options });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || `HTTP error! status: ${response.status}`);
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('API request failed:', error);
-    throw error;
-  }
+  const response = await fetch(`${API_BASE}${endpoint}`, { ...defaultOptions, ...options });
+  const data = await response.json();
+  
+  if (!response.ok) throw new Error(data.error);
+  return data;
 }
 
 export const api = {
-  // Clientes
-  getClientes: () => apiRequest('/clientes'),
-  getCliente: (id) => apiRequest(`/clientes/${id}`),
-  createCliente: (data) => apiRequest('/clientes', { 
-    method: 'POST', 
-    body: JSON.stringify(data) 
-  }),
-  
-  // Serviços
-  getServicos: () => apiRequest('/servicos'),
-  createServico: (data) => apiRequest('/servicos', { 
-    method: 'POST', 
-    body: JSON.stringify(data) 
-  }),
-  
-  // Agendamentos (futuro)
-  getAgendamentos: (data) => apiRequest(`/agendamentos?data=${data}`),
+  // ... todos os métodos
 };
-5. Configuração do Proxy (Vite)
-Arquivo: vite.config.js
+Proxy Vite (vite.config.js)
 javascript
-import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
-import path from 'path'
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@pages': path.resolve(__dirname, './src/pages'),
-      '@services': path.resolve(__dirname, './src/services'),
-    }
-  },
-  server: {
-    port: 5173,
-    open: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: true
-      }
-    }
+server: {
+  proxy: {
+    '/api': 'http://localhost:3000'
   }
-})
-6. Variáveis de Ambiente
-Frontend: .env
+}
+
+
+5. Variáveis de Ambiente
+Frontend (.env)
 text
 VITE_API_URL=/api
-Backend: backend/.env
+Backend (backend/.env)
 text
-DATABASE_URL="postgresql://postgres:Inf0rmatica1@localhost:5432/estetixhub"
-JWT_SECRET="chave-super-secreta-para-jwt-2026"
+DATABASE_URL="postgresql://postgres:senha@localhost:5432/estetixhub"
+JWT_SECRET="chave-super-secreta"
 PORT=3000
-7. Comandos Úteis
-Desenvolvimento
-bash
-# Iniciar frontend (na raiz)
-npm run dev
 
-# Iniciar backend
-cd backend
-npm run dev
 
-# Acessar banco via DBeaver
-# Host: localhost
-# Port: 5432
-# Database: estetixhub
-# User: postgres
-# Pass: Inf0rmatica1@
-Prisma
-bash
-# Criar nova migration
-cd backend
-npx prisma migrate dev --name nome_da_migracao
+6. Próximas Implementações (FASE 5)
+Melhorias na Agenda
+Drag-and-drop para remarcar
 
-# Visualizar banco (web interface)
-npx prisma studio
+Visualização semanal
 
-# Resetar banco (cuidado - apaga dados!)
-npx prisma migrate reset
-8. Checklist de Qualidade
-Antes de entregar cada fase:
-Código segue padrões ESLint
+Conflitos de horário em tempo real
 
-Nenhum console.log esquecido
+Integração com WhatsApp para lembretes
 
-Tratamento de erros implementado
+Relatórios
+Gerar PDF da agenda
 
-Loading states nos componentes
+Estatísticas de atendimentos
 
-Responsivo testado em mobile
-
-Testes manuais realizados
+Relatório de comissões

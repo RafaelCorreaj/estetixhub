@@ -4,13 +4,18 @@
 const API_BASE = '/api';
 
 async function apiRequest(endpoint, options = {}) {
-  const url = `${API_BASE}${endpoint}`;
+  // 🔐 PEGAR O TOKEN DO LOCALSTORAGE
+  const token = localStorage.getItem('@estetixhub:token');
   
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
+      // 🔐 ADICIONAR TOKEN NO HEADER SE EXISTIR
+      ...(token && { 'Authorization': `Bearer ${token}` }),
     },
   };
+
+  const url = `${API_BASE}${endpoint}`;
 
   try {
     const response = await fetch(url, { ...defaultOptions, ...options });
@@ -92,6 +97,15 @@ export const api = {
   }),
 
   // ========== ANAMNESE ==========
+  gerarTokenAnamnese: (clienteId) => apiRequest(`/anamnese/token/${clienteId}`),
+
+  validarTokenAnamnese: (token) => apiRequest(`/anamnese/publica/validar/${token}`),
+
+  enviarAnamnesePublica: (token, data) => apiRequest(`/anamnese/publica/${token}`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
   getAnamneses: () => apiRequest('/anamnese'),
   
   getAnamnese: (id) => apiRequest(`/anamnese/${id}`),
@@ -151,6 +165,25 @@ export const api = {
   }),
 
   // ========== USUÁRIOS / AUTENTICAÇÃO ==========
+  getUsuarios: () => apiRequest('/usuarios'),
+  
+  getUsuario: (id) => apiRequest(`/usuarios/${id}`),
+  
+  createUsuario: (usuario) => apiRequest('/usuarios', {
+    method: 'POST',
+    body: JSON.stringify(usuario),
+  }),
+  
+  updateUsuario: (id, usuario) => apiRequest(`/usuarios/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(usuario),
+  }),
+  
+  deleteUsuario: (id) => apiRequest(`/usuarios/${id}`, {
+    method: 'DELETE',
+  }),
+
+  // ========== AUTENTICAÇÃO ==========
   getCurrentUser: () => apiRequest('/auth/me'),
   
   login: (credentials) => apiRequest('/auth/login', {
@@ -165,6 +198,12 @@ export const api = {
   register: (userData) => apiRequest('/auth/register', {
     method: 'POST',
     body: JSON.stringify(userData),
+  }),
+
+  // 🔐 NOVA FUNÇÃO PARA ALTERAR SENHA
+  changePassword: (data) => apiRequest('/auth/change-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
   }),
 };
 

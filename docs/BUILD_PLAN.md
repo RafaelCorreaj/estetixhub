@@ -1,215 +1,168 @@
-
----
-
-## 📁 **ARQUIVO: `docs/BUILD_PLAN.md`**
-
-```markdown
 # BUILD_PLAN.md - Plano de Desenvolvimento EstetixHub
 
 ## 🏗️ Visão Geral das Fases
 
-| Fase | Nome | Complexidade | Modelo Sugerido | Status |
-|------|------|--------------|-----------------|--------|
-| 0 | Setup Inicial | Baixa | - | ✅ Concluído |
-| 1 | Limpeza Base44 | Média | Sonnet | ⏳ Pendente |
-| 2 | Backend API | Alta | Sonnet | ⏳ Pendente |
-| 3 | Conexão Frontend | Alta | Sonnet | ⏳ Pendente |
-| 4 | Autenticação | Média | Sonnet | ⏳ Pendente |
-| 5 | Agendamentos | Alta | Sonnet | ⏳ Pendente |
-| 6 | Anamnese Digital | Média | Sonnet | ⏳ Pendente |
-| 7 | Marketing | Baixa | Haiku | ⏳ Pendente |
-| 8 | Polimento PWA | Média | Sonnet | ⏳ Pendente |
+| Fase | Nome | Complexidade | Status | Observação |
+|------|------|--------------|--------|------------|
+| 0 | Setup Inicial | Baixa | ✅ Concluído | PostgreSQL, Prisma, estrutura inicial |
+| 1 | Limpeza Base44 | Média | ✅ Concluído | Frontend 100% independente do Base44 |
+| 2 | Backend API | Alta | ✅ Concluído | Todas as rotas CRUD implementadas |
+| 3 | Conexão Frontend | Alta | ✅ Concluído | Dados reais do banco no frontend |
+| 4 | Autenticação | Média | ✅ Concluído | Login JWT, rotas protegidas, configurações |
+| 5 | Agendamentos | Alta | ✅ Concluído | Calendário, drag-and-drop, conflitos |
+| 6 | Anamnese Digital | Alta | ✅ Concluído | Fichas dinâmicas, histórico, PDF, link público |
+| 7 | Marketing | Média | ⏳ Em andamento | Posts, modelos de mensagem, disparos |
+| 8 | Polimento PWA | Média | ⏳ Pendente | PWA, offline, notificações |
 
 ---
 
 ## ✅ FASE 0: Setup Inicial (Concluído)
-
-### O que foi feito
-- [x] PostgreSQL 16 instalado e configurado
-- [x] Prisma schema criado com 7 tabelas
-- [x] Migrations aplicadas com sucesso
-- [x] Servidor Express rodando na porta 3000
-- [x] DBeaver conectado ao banco
-- [x] Primeiro cliente inserido (ID: c864cfd0...)
-- [x] Proxy configurado no Vite
+- [x] PostgreSQL 16 instalado
+- [x] Prisma schema com 7 tabelas
+- [x] Migrations aplicadas
+- [x] Servidor Express rodando
+- [x] DBeaver conectado
+- [x] Primeiro cliente inserido
+- [x] Proxy Vite configurado
 
 ---
 
-## 🧹 FASE 1: Limpeza Base44
-
-**Objetivo:** Remover todas as dependências do Base44 do frontend
-
-### Checklist de Execução
-- [ ] Identificar todos os arquivos com imports do Base44
-- [ ] Criar arquivo `src/services/api.js` (já temos o código pronto)
-- [ ] Substituir `base44.get()` por `api.getClientes()` em cada página
-- [ ] Remover dependências `@base44/*` do `package.json`
-- [ ] Testar navegação em todas as páginas
-
-### Arquivos a serem modificados (11 arquivos)
-src/api/base44Client.js
-src/Layout.jsx
-src/lib/AuthContext.jsx
-src/lib/app-params.js
-src/pages/Agenda.jsx
-src/pages/Anamnese.jsx
-src/pages/Clientes.jsx
-src/pages/Dashboard.jsx
-src/pages/Marketing.jsx
-src/pages/Servicos.jsx
-src/components/agenda/AgendamentoForm.jsx
-
-text
-
-### Critério de Aprovação
-✅ Nenhum import de `@base44` no código  
-✅ Página de Serviços funcionando com API própria  
-✅ `npm run dev` rodando sem erros  
-✅ Build de produção funcionando (`npm run build`)
+## ✅ FASE 1: Limpeza Base44 (Concluído)
+- [x] Identificados 11 arquivos com imports do Base44
+- [x] Criado `src/services/api.js`
+- [x] Substituídas todas as chamadas Base44
+- [x] Removidas dependências `@base44/*`
+- [x] Frontend rodando sem erros
+- [x] Código versionado no GitHub
 
 ---
 
-## 🔧 FASE 2: Backend API
-
-**Objetivo:** Completar todas as rotas CRUD
-
-### Endpoints a Implementar
-
-| Método | Rota | Descrição | Status |
-|--------|------|-----------|--------|
-| GET | `/api/clientes` | Listar todos os clientes | ✅ Pronto |
-| POST | `/api/clientes` | Criar novo cliente | ✅ Pronto |
-| GET | `/api/clientes/:id` | Buscar cliente por ID | ⏳ |
-| PUT | `/api/clientes/:id` | Atualizar cliente | ⏳ |
-| DELETE | `/api/clientes/:id` | Remover cliente | ⏳ |
-| GET | `/api/servicos` | Listar serviços | ✅ Pronto |
-| POST | `/api/servicos` | Criar serviço | ✅ Pronto |
-| GET | `/api/servicos/:id` | Buscar serviço | ⏳ |
-| PUT | `/api/servicos/:id` | Atualizar serviço | ⏳ |
-| DELETE | `/api/servicos/:id` | Desativar serviço | ⏳ |
-| GET | `/api/agendamentos` | Listar agendamentos | ⏳ |
-| POST | `/api/agendamentos` | Criar agendamento | ⏳ |
-| POST | `/api/auth/login` | Login de usuário | ⏳ |
-| POST | `/api/auth/register` | Registrar usuário | ⏳ |
-
-### Critério de Aprovação
-✅ Testes manuais com Postman/Thunder Client  
-✅ Todas as rotas respondendo corretamente  
-✅ Validações funcionando (campos obrigatórios)  
-✅ Tratamento de erros adequado  
+## ✅ FASE 2: Backend API (Concluído)
+- [x] Rotas de clientes (GET, POST, PUT, DELETE)
+- [x] Rotas de serviços (GET, POST, PUT, DELETE)
+- [x] Rotas de agendamentos (GET, POST, PUT, PATCH)
+- [x] Rotas de anamnese (GET, POST, PUT, DELETE)
+- [x] Rotas de marketing (posts e modelos)
+- [x] Rotas de usuários (GET, POST, PUT)
+- [x] Rotas de autenticação (login, register, me, change-password)
 
 ---
 
-## 🔌 FASE 3: Conexão Frontend
+## ✅ FASE 3: Conexão Frontend (Concluído)
+- [x] Página de Serviços com dados reais
+- [x] Página de Clientes com dados reais
+- [x] Página de Anamnese com dados reais
+- [x] Página de Marketing com dados reais
+- [x] Página de Agenda com dados reais
+- [x] Dashboard com estatísticas reais
 
-**Objetivo:** Substituir dados mockados por dados reais do banco
+---
 
-### Ordem de Implementação
-1. **Serviços** (mais simples - só lista)
-2. **Clientes** (lista + formulário)
-3. **Dashboard** (estatísticas reais)
-4. **Agenda** (mais complexo)
+## ✅ FASE 4: Autenticação (Concluído)
+- [x] Backend: JWT implementado
+- [x] Backend: Rotas `/auth/login`, `/auth/me`, `/auth/change-password`
+- [x] Frontend: Tela de login
+- [x] Frontend: `AuthContext` com token JWT
+- [x] Frontend: Rotas protegidas
+- [x] Frontend: Página de configurações do usuário
+- [x] Frontend: Menu do usuário com Configurações e Logout
 
-### Exemplo de Substituição
+---
 
-**Antes (Base44):**
-```javascript
-import { base44 } from '@api/base44Client'
+## ✅ FASE 5: Agendamentos (Concluído)
 
-const clientes = await base44.get('/clientes')
-Depois (nossa API):
+**Objetivo:** Funcionalidade completa de agenda
 
-javascript
-import { api } from '../services/api'
+### Checklist
+- [x] Calendário interativo (react-day-picker)
+- [x] Visualização por dia/semana/mês
+- [x] Modal de criação de agendamento
+- [x] Validação de conflitos de horário
+- [x] Drag-and-drop para remarcar
+- [x] Relatórios de agenda (PDF)
 
-const clientes = await api.getClientes()
-Critério de Aprovação
-✅ Página de Serviços mostrando dados do banco
-✅ Página de Clientes listando cliente criado no DBeaver
-✅ Dashboard com contagens reais
-✅ Formulários criando registros no banco
+---
 
-🔐 FASE 4: Autenticação
-Objetivo: Implementar login e controle de acesso
+## ✅ FASE 6: Anamnese Digital (Concluído)
 
-Tarefas
-Tela de login (página pública)
+**Objetivo:** Fichas dinâmicas dos clientes
 
-Registro de novos usuários
+### Checklist
+- [x] Formulário completo com 5 seções
+- [x] Campos obrigatórios com validação
+- [x] Botão salvar desabilitado até preenchimento
+- [x] Histórico em pastas por cliente
+- [x] Visualização em tela (sem download)
+- [x] Download em PDF profissional
+- [x] Edição de fichas existentes
+- [x] Exclusão com confirmação de senha
+- [x] Link único por cliente (token)
+- [x] Modal de opções (copiar/WhatsApp)
+- [x] Página pública para cliente preencher
+- [x] Toast de confirmação para ações
 
-JWT tokens no backend
+---
 
-Armazenamento do token no frontend (localStorage)
+## 🚀 FASE 7: Marketing (Em andamento)
 
-Rotas protegidas no frontend
+**Objetivo:** Automação de marketing
 
-Middleware de autenticação no backend
+### Checklist
+- [ ] Modelos de mensagem (templates com variáveis)
+- [ ] Disparos automáticos de aniversário
+- [ ] Lembretes de consulta via WhatsApp
+- [ ] Calendário de posts para redes sociais
+- [ ] Estatísticas de engajamento
+- [ ] Integração com API do WhatsApp Business
+- [ ] Agendamento de posts
 
-Logout
+---
 
-📅 FASE 5: Agendamentos
-Objetivo: Funcionalidade principal de agenda
+## ✨ FASE 8: Polimento PWA (Futuro)
 
-Tarefas
-Calendário interativo (react-day-picker)
+**Objetivo:** Experiência mobile e offline
 
-Modal de criação de agendamento
+### Checklist
+- [ ] PWA (instalável)
+- [ ] Offline mode (cache de dados)
+- [ ] Notificações push
+- [ ] Performance optimizada
+- [ ] Tema dark mode
+- [ ] Splash screen
+- [ ] Ícones personalizados
 
-Validação de conflitos de horário
+---
 
-Visualização por dia/semana/mês
-
-Lembretes automáticos (via WhatsApp - futuro)
-
-📋 FASE 6: Anamnese Digital
-Objetivo: Fichas de clientes
-
-Tarefas
-Formulário de anamnese
-
-Link único para cliente preencher
-
-Histórico de evolução
-
-PDF da ficha preenchida
-
-📱 FASE 7: Marketing
-Objetivo: Disparos automáticos
-
-Tarefas
-Modelos de mensagem (templates)
-
-Disparos de aniversário
-
-Lembretes de consulta
-
-Calendário de posts
-
-✨ FASE 8: Polimento PWA
-Objetivo: Experiência mobile e offline
-
-Tarefas
-PWA (instalável)
-
-Offline mode
-
-Notificações push
-
-Performance optimizada
-
-🗺️ Mapa de Paralelização
-text
+## 📊 MAPA DE PARALELIZAÇÃO
 FASE 0: Setup ✅
-    │
-    ├──► FASE 1: Limpeza Base44 (Sonnet)
-    │       └── (prepara o terreno)
-    │
-    └──► FASE 2: Backend API (Sonnet)
-            └── define TODAS as interfaces
-                    │
-                    ├──► FASE 3: Conexão Frontend (Sonnet)
-                    ├──► FASE 4: Autenticação (Sonnet)
-                    ├──► FASE 5: Agendamentos (Sonnet)
-                    ├──► FASE 6: Anamnese (Sonnet)
-                    ├──► FASE 7: Marketing (Haiku)
-                    └──► FASE 8: Polimento PWA (Sonnet)
+│
+├──► FASE 1: Limpeza Base44 ✅
+│
+└──► FASE 2: Backend API ✅
+│
+├──► FASE 3: Conexão Frontend ✅
+├──► FASE 4: Autenticação ✅
+├──► FASE 5: Agendamentos ✅
+├──► FASE 6: Anamnese Digital ✅
+├──► FASE 7: Marketing (atual)
+└──► FASE 8: Polimento PWA
+
+text
+
+---
+
+## 📈 Progresso Geral do Projeto
+
+| Fase | Progresso |
+|------|-----------|
+| Fase 0 | 🟢 100% |
+| Fase 1 | 🟢 100% |
+| Fase 2 | 🟢 100% |
+| Fase 3 | 🟢 100% |
+| Fase 4 | 🟢 100% |
+| Fase 5 | 🟢 100% |
+| Fase 6 | 🟢 100% |
+| Fase 7 | 🟡 0% |
+| Fase 8 | ⚪ 0% |
+
+**Progresso Total: 75%** 🚀
