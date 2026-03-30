@@ -1,0 +1,87 @@
+# Rede customizada para comunicação entre serviços
+networks:
+  estetixhub_network:
+    driver: bridge
+
+# Volumes persistentes
+volumes:
+  postgres_data:
+  uploads:
+
+# Serviços
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: estetixhub_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: estetixhub
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-estetixhub123}
+      POSTGRES_DB: estetixhub
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estetixhub_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estetixhub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: estetixhub_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://estetixhub:${DB_PASSWORD:-estetixhub123}@postgres:5432/estetixhub
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      # Montar código fonte para hot reload
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      # Volume para uploads
+      - uploads:/app/uploads
+    networks:
+      - estetixhub_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend (React + Vite)
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: estetixhub_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:3000
+    ports:
+      - "80:80"
+    networks:
+      - estetixhub_network
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

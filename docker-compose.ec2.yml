@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: estetixhub-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: estetix_admin
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: estetixhub
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estetixhub_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estetix_admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: SEU_USUARIO/estetixhub-backend:latest
+    container_name: estetixhub-backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://estetix_admin:${DB_PASSWORD}@postgres:5432/estetixhub
+      JWT_SECRET: ${JWT_SECRET}
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - estetixhub_network
+    ports:
+      - "3000:3000"
+
+  frontend:
+    image: SEU_USUARIO/estetixhub-frontend:latest
+    container_name: estetixhub-frontend
+    restart: always
+    networks:
+      - estetixhub_network
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
+  uploads:
+
+networks:
+  estetixhub_network:
+    driver: bridge

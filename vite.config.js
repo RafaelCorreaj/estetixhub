@@ -193,12 +193,7 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['lucide-react', 'recharts'],
-          forms: ['react-hook-form', 'zod'],
-          utils: ['date-fns', 'jspdf']
-        }
+        format: 'esm'
       }
     },
     chunkSizeWarningLimit: 1000

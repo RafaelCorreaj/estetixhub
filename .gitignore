@@ -14,11 +14,18 @@ dist-ssr/
 *.swo
 *~
 
-# Ambiente
+# Ambiente - Arquivos de configuração sensíveis
 .env
 .env.local
 .env.production
 .env.staging
+.env.*
+!.env.example
+!.env.prod.example
+backend/.env
+*secret*
+*password*
+*key*
 
 # Logs
 *.log
@@ -33,3 +40,6 @@ backend/uploads/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Docker
+docker-compose.override.yml

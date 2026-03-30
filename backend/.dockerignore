@@ -1,0 +1,46 @@
+# Dependências
+node_modules
+npm-debug.log
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.*.local
+
+# Arquivos do Prisma
+prisma/migrations/
+prisma/dev.db
+prisma/dev.db-journal
+
+# Logs
+logs
+*.log
+
+# Build artifacts
+dist
+build
+coverage
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads (será montado como volume)
+uploads/*
+!uploads/.gitkeep
+
+# Testes
+test
+tests
+__tests__

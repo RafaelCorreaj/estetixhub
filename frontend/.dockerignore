@@ -1,0 +1,37 @@
+# Dependências
+node_modules
+npm-debug.log
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist
+build
+coverage
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Testes
+test
+tests
+__tests__

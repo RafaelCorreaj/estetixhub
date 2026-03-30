@@ -1,0 +1,102 @@
+version: '3.8'
+
+# Rede customizada para comunicação entre serviços
+networks:
+  estetixhub_network:
+    driver: bridge
+
+# Volumes persistentes
+volumes:
+  postgres_data:
+  uploads:
+  backend_logs:
+  nginx_logs:
+
+# Serviços
+services:
+  # Banco de dados PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: estetixhub_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: estetixhub
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: estetixhub
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estetixhub_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U estetixhub"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Backend API (imagem do Docker Hub)
+  backend:
+    image: ${BACKEND_IMAGE:-rafaelcorreaj/estetixhub-backend:latest}
+    container_name: estetixhub_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://estetixhub:${DB_PASSWORD}@postgres:5432/estetixhub
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    volumes:
+      # Volume para uploads persistente
+      - uploads:/app/uploads
+      # Volume para logs (opcional)
+      - backend_logs:/app/logs
+    networks:
+      - estetixhub_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+
+  # Nginx Proxy Reverso (serve frontend + proxy API)
+  nginx:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: estetixhub_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"  # Para HTTPS futuramente
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro  # Para certificados SSL (opcional)
+      - ./frontend-dist:/usr/share/nginx/html:ro
+    networks:
+      - estetixhub_network
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
