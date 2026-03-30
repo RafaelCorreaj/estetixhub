@@ -7,6 +7,9 @@ dist/
 dist-ssr/
 *.local
 
+# Frontend build output (gerado para deploy)
+frontend-dist/
+
 # Editor
 .vscode/
 .idea/
