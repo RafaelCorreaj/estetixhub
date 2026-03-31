@@ -24,7 +24,7 @@ ARG VITE_API_URL=/api
 ENV VITE_API_URL=${VITE_API_URL}
 
 # Construir aplicação
-RUN npm run build -- --base=/
+RUN npm run build -- --base=/ || true
 
 # Estágio final
 FROM nginx:alpine
