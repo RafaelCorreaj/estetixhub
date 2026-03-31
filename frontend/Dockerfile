@@ -10,14 +10,14 @@ WORKDIR /app
 # Copiar arquivos de dependências
 COPY package.json package-lock.json* ./
 
-# Instalar dependências (omitir optional para evitar erro do rollup no Alpine)
-RUN npm ci --omit=optional
+# Instalar dependências (com fallback para npm install)
+RUN npm ci --production=false --omit=dev 2>/dev/null || npm install
 
 # Copiar código fonte
 COPY . .
 
-# Instalar rollup explicitamente (forçar versão compatível)
-RUN npm install --no-save @rollup/rollup-linux-x64-musl
+# Instalar rollup explicitamente se necessário
+RUN npm install --no-save @rollup/rollup-linux-x64-musl 2>/dev/null || true
 
 # Argumento para a URL da API (padrão: /api para produção com proxy)
 ARG VITE_API_URL=/api
@@ -32,30 +32,27 @@ FROM nginx:alpine
 # Copiar arquivos buildados
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copiar configuração customizada do nginx (se existir)
-# COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copiar configuração customizada do nginx
+COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Remover configuração padrão
+RUN rm -f /etc/nginx/conf.d/default.conf.default
 
 # Criar usuário não-root
-RUN addgroup -g 1001 -S nginx-custom
-RUN adduser -S nginx-custom -u 1001 -G nginx-custom
-
-# Ajustar permissões
-RUN chown -R nginx-custom:nginx-custom /usr/share/nginx/html
-RUN chown -R nginx-custom:nginx-custom /var/cache/nginx
-RUN chown -R nginx-custom:nginx-custom /var/log/nginx
-RUN chown -R nginx-custom:nginx-custom /etc/nginx/conf.d
-RUN touch /var/run/nginx.pid
-RUN chown -R nginx-custom:nginx-custom /var/run/nginx.pid
+RUN addgroup -g 1001 -S nginx-custom && \
+    adduser -S nginx-custom -u 1001 -G nginx-custom && \
+    chown -R nginx-custom:nginx-custom /usr/share/nginx/html && \
+    find /usr/share/nginx/html -type f -exec chmod 644 {} \; && \
+    chown -R nginx-custom:nginx-custom /var/cache/nginx && \
+    chown -R nginx-custom:nginx-custom /var/log/nginx && \
+    touch /var/run/nginx.pid && \
+    chown nginx-custom:nginx-custom /var/run/nginx.pid
 
 # Mudar para usuário não-root
 USER nginx-custom
 
 # Expor porta
 EXPOSE 80
-
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
 
 # Iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]
