@@ -11,8 +11,8 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
-# Instalar dependências
-RUN npm ci --production --omit=dev || npm install --production
+# Instalar dependências (com fallback)
+RUN npm ci --production --omit=dev || npm install --production --omit=dev
 
 # Gerar Prisma Client
 RUN npx prisma generate
@@ -20,8 +20,8 @@ RUN npx prisma generate
 # Estágio final
 FROM node:20-alpine
 
-# Instalar openssl
-RUN apk add --no-cache openssl
+# Instalar openssl e curl (para healthcheck)
+RUN apk add --no-cache openssl curl
 
 # Criar usuário não-root para segurança
 RUN addgroup -g 1001 -S nodejs
@@ -47,9 +47,9 @@ USER nodejs
 # Expor porta
 EXPOSE 3000
 
-# Healthcheck
+# Healthcheck (usando curl)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {if(r.statusCode!==200)throw new Error(r.statusCode)})" || exit 1
+  CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Comando de inicialização
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && node src/app.js"]
+# Comando de inicialização (seed executa se existir)
+CMD ["sh", "-c", "npx prisma migrate deploy && (node prisma/seed.js 2>/dev/null || true) && node src/app.js"]
